@@ -1,0 +1,145 @@
+{% load static %}
+<!-- Load static files -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <title>Restaurants</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <style>
+      /* Custom styles */
+      .restaurant-list {
+        max-height: 50vh; /* Set maximum height */
+        overflow-y: auto; /* Enable vertical scrolling */
+      }
+
+      /* Dim background style */
+      .dim-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+        z-index: 9999; /* Ensure it's on top */
+        display: none; /* Initially hidden */
+      }
+
+      /* Loader style */
+      .loader {
+        border: 4px solid #f3f3f3; /* Light grey */
+        border-top: 4px solid #3498db; /* Blue */
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 2s linear infinite;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%); /* Center loader */
+        z-index: 10000; /* Ensure it's on top of dim background */
+        display: none; /* Initially hidden */
+      }
+
+      /* Loader animation */
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Restaurants</h1>
+      <div class="restaurant-list">
+        <table id="restaurant-table" class="table table-striped">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Location</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for restaurant in restaurants %}
+            <tr>
+              <td>{{ restaurant.name }}</td>
+              <td>{{ restaurant.location }}</td>
+              <td>
+                <a
+                  href="/restaurant_detail/{{ restaurant.id }}/"
+                  class="btn btn-primary"
+                  >View Menu</a
+                >
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <h2>Add a new Restaurant</h2>
+      <form id="add-restaurant-form" method="post" action="/scrape/">
+        {% csrf_token %} {{ form.as_p }}
+        <button type="submit" class="btn btn-success">
+          Scrape This Restaurant
+        </button>
+      </form>
+    </div>
+
+    <!-- Loader and dim background -->
+    <div class="dim-background" id="dim-background"></div>
+    <div class="loader" id="loader"></div>
+
+    <script>
+      // Function to show loader and dim background
+      function showLoader() {
+        document.getElementById("dim-background").style.display = "block";
+        document.getElementById("loader").style.display = "block";
+      }
+
+      // Function to hide loader and dim background
+      function hideLoader() {
+        document.getElementById("dim-background").style.display = "none";
+        document.getElementById("loader").style.display = "none";
+      }
+
+      // Function to submit form with loader
+      document
+        .getElementById("add-restaurant-form")
+        .addEventListener("submit", function (event) {
+          event.preventDefault(); // Prevent default form submission
+          showLoader(); // Show loader
+          var form = this;
+          setTimeout(function () {
+            form.submit(); // Submit form after a delay (for demonstration)
+          }, 2000); // 2000 milliseconds delay (adjust as needed)
+        });
+
+      // Function to prepend new restaurant to table
+      function prependRestaurant(name, location) {
+        var tableBody = document.querySelector("#restaurant-table tbody");
+        var newRow = document.createElement("tr");
+        newRow.innerHTML = `
+            <td>${name}</td>
+            <td>${location}</td>
+            <td>
+                <a href="#" class="btn btn-primary">View Menu</a>
+            </td>
+        `;
+        tableBody.insertBefore(newRow, tableBody.firstChild);
+      }
+    </script>
+  </body>
+</html>
